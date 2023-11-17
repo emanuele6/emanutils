@@ -6,10 +6,10 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-extern char **const environ;
+extern char *environ[];
 
 static char **
-getblock(char **const args)
+getblock(char *args[])
 {
     if (!*args)
         return NULL;
@@ -33,7 +33,7 @@ usage()
 }
 
 int
-main(int const argc, char **const argv)
+main(int const argc, char *argv[])
 {
     (void)argc;
 
