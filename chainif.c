@@ -27,7 +27,7 @@ static void
 usage()
 {
     static char const message[] =
-        "chainif { condition... } { chain... } cmd...\n";
+        "Usage: chainif { condition... } { chain... } cmd...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
