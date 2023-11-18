@@ -1,7 +1,7 @@
+#include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
 
-#include <errno.h>
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
