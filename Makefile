@@ -9,6 +9,6 @@ UTILS = \
 all: $(UTILS)
 .PHONY: all
 
-clean: $(UTILS)
+clean:
 	rm -f -- $(UTILS)
 .PHONY: clean
