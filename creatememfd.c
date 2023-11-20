@@ -7,7 +7,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-int main(int const argc, char *const argv[])
+int
+main(int const argc, char *const argv[])
 {
     if (argc <= 3) {
         if (EOF == fputs("Usage: creatememfd fd name cmd [args]...\n",

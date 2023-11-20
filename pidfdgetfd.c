@@ -7,7 +7,8 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-int main(int const argc, char *const argv[])
+int
+main(int const argc, char *const argv[])
 {
     if (argc <= 4) {
         if (EOF == fputs("Usage: "

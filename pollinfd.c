@@ -6,7 +6,8 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
-int main(int const argc, char *const argv[])
+int
+main(int const argc, char *const argv[])
 {
     if (argc <= 1) {
         if (EOF == fputs("Usage: pollinfd fd [cmd] [args]...\n",
