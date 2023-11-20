@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <spawn.h>
 #include <sys/wait.h>
@@ -72,14 +73,9 @@ main(int const argc, char *argv[])
         dochain = WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
 
-    char **toexec;
-    if (dochain) {
-        toexec = &chain[1];
-        for (char **a = &cmd[-1]; a > chain; --a)
-            *a = a[-1];
-    } else {
-        toexec = cmd;
-    }
+    char *const *const toexec = dochain
+        ? memmove(&chain[1], chain, (cmd - &chain[1]) * sizeof *chain)
+        : cmd;
 
     if (!*toexec)
         return 0;
