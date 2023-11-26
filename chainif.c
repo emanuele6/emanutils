@@ -28,7 +28,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: chainif { condition... } { chain... } cmd...\n";
+        "Usage: chainif [-A] { condition... } { chain... } cmd...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -36,9 +36,20 @@ usage()
 int
 main(int const argc, char *argv[])
 {
-    (void)argc;
+    bool appendflag = false;
 
-    char **const condition = &argv[1];
+    for (int opt; (opt = getopt(argc, argv, "A")) != -1;) {
+        switch (opt) {
+        case 'A':
+            appendflag = true;
+            break;
+        default:
+            usage();
+            return 2;
+        }
+    }
+
+    char **const condition = &argv[optind];
     char **const chain = getblock(condition);
     if (!chain) {
         usage();
@@ -75,7 +86,7 @@ main(int const argc, char *argv[])
 
     char *const *const toexec = dochain
         ? memmove(&chain[1], chain, (cmd - &chain[1]) * sizeof *chain)
-        : cmd;
+        : (appendflag ? chain : cmd);
 
     if (!*toexec)
         return 0;
