@@ -7,7 +7,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-extern char *environ[];
+extern char *const environ[];
 
 static char **
 getblock(char *args[])
