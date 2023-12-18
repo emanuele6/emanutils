@@ -31,7 +31,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: fdcmp [-n] [-p PID1] [-P PID2] FD1 FD2 [cmd]...\n";
+        "Usage: fdcmp [-n] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -41,9 +41,9 @@ main(int const argc, char *argv[])
 {
     char const *pid1_str = NULL;
     char const *pid2_str = NULL;
-    bool negate = false;
+    bool negateflag = false;
 
-    for (int opt; opt = getopt(argc, argv, "p:P:n"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "np:P:"), opt != -1;) {
         switch (opt) {
         case 'p':
             pid1_str = optarg;
@@ -52,7 +52,7 @@ main(int const argc, char *argv[])
             pid2_str = optarg;
             break;
         case 'n':
-            negate = true;
+            negateflag = true;
             break;
         default:
             usage();
@@ -95,8 +95,7 @@ main(int const argc, char *argv[])
         return 2;
     }
 
-    bool const ok = (res == 0) != negate;
-    if (!ok)
+    if ((res == 0) == negateflag)
         return 1;
 
     if (optind + 3 > argc)
