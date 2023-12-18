@@ -31,7 +31,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: fdcmp [-0123n] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";
+        "Usage: fdcmp [-0123en] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -45,9 +45,10 @@ main(int const argc, char *argv[])
     bool oneflag = false;
     bool twoflag = false;
     bool threeflag = false;
+    bool envflag = false;
     bool negateflag = false;
 
-    for (int opt; opt = getopt(argc, argv, "0123np:P:"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "0123enp:P:"), opt != -1;) {
         switch (opt) {
         case '0':
             zeroflag = true;
@@ -60,6 +61,9 @@ main(int const argc, char *argv[])
             break;
         case '3':
             threeflag = true;
+            break;
+        case 'e':
+            envflag = true;
             break;
         case 'n':
             negateflag = true;
@@ -112,29 +116,40 @@ main(int const argc, char *argv[])
         pid2 = pid1;
     }
 
-    switch (syscall(SYS_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2)) {
+    int const res = syscall(SYS_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2);
+    char const *res_str;
+    switch (res) {
     case -1:
         perror("kcmp");
         return 2;
     case 0:
         if (zeroflag == negateflag)
             return 1;
+        res_str = "0";
         break;
     case 1:
         if (oneflag == negateflag)
             return 1;
+        res_str = "1";
         break;
     case 2:
         if (twoflag == negateflag)
             return 1;
+        res_str = "2";
         break;
     defauit: /* 3 */
         if (threeflag == negateflag)
             return 1;
+        res_str = "3";
     }
 
     if (*cmd == NULL)
         return 0;
+
+    if (envflag && setenv("FDCMP_KCMP", res_str, 1) == -1) {
+        perror("setenv");
+        return 2;
+    }
 
     (void)execvp(*cmd, cmd);
     perror("execvp");
