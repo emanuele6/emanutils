@@ -1,6 +1,7 @@
 UTILS = \
     chainif \
     creatememfd \
+    fdcmp \
     openpathfd \
     openpidfd \
     pidfdgetfd \
