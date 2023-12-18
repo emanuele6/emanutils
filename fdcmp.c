@@ -45,14 +45,14 @@ main(int const argc, char *argv[])
 
     for (int opt; opt = getopt(argc, argv, "np:P:"), opt != -1;) {
         switch (opt) {
+        case 'n':
+            negateflag = true;
+            break;
         case 'p':
             pid1_str = optarg;
             break;
         case 'P':
             pid2_str = optarg;
-            break;
-        case 'n':
-            negateflag = true;
             break;
         default:
             usage();
@@ -72,21 +72,25 @@ main(int const argc, char *argv[])
         return 2;
     }
 
+    char *const *const cmd = &argv[optind + 2];
+
     pid_t pid1;
-    pid_t pid2;
     if (pid1_str) {
         int intpid;
         if (!str2posint(&intpid, pid1_str, "Invalid pid1\n"))
             return 2;
-        pid1 = pid2 = (pid_t)intpid;
+        pid1 = (pid_t)intpid;
     } else {
-        pid1 = pid2 = getpid();
+        pid1 = getpid();
     }
+    pid_t pid2;
     if (pid2_str) {
         int intpid;
         if (!str2posint(&intpid, pid2_str, "Invalid pid2\n"))
             return 2;
         pid2 = (pid_t)intpid;
+    } else {
+        pid2 = pid1;
     }
 
     int const res = syscall(SYS_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2);
@@ -95,13 +99,9 @@ main(int const argc, char *argv[])
         return 2;
     }
 
-    if ((res == 0) == negateflag)
-        return 1;
-
-    if (optind + 3 > argc)
+    if (*cmd == NULL)
         return 0;
 
-    char *const *const cmd = &argv[optind + 2];
     (void)execvp(*cmd, cmd);
     perror("execvp");
     return 2;
