@@ -31,7 +31,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: fdcmp [-n] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";
+        "Usage: fdcmp [-0123n] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -41,10 +41,26 @@ main(int const argc, char *argv[])
 {
     char const *pid1_str = NULL;
     char const *pid2_str = NULL;
+    bool zeroflag = false;
+    bool oneflag = false;
+    bool twoflag = false;
+    bool threeflag = false;
     bool negateflag = false;
 
-    for (int opt; opt = getopt(argc, argv, "np:P:"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "0123np:P:"), opt != -1;) {
         switch (opt) {
+        case '0':
+            zeroflag = true;
+            break;
+        case '1':
+            oneflag = true;
+            break;
+        case '2':
+            twoflag = true;
+            break;
+        case '3':
+            threeflag = true;
+            break;
         case 'n':
             negateflag = true;
             break;
@@ -59,6 +75,9 @@ main(int const argc, char *argv[])
             return 2;
         }
     }
+
+    if (!(oneflag || twoflag || threeflag))
+        zeroflag = true;
 
     if (optind + 2 > argc) {
         usage();
@@ -93,10 +112,25 @@ main(int const argc, char *argv[])
         pid2 = pid1;
     }
 
-    int const res = syscall(SYS_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2);
-    if (res == -1) {
+    switch (syscall(SYS_kcmp, pid1, pid2, KCMP_FILE, fd1, fd2)) {
+    case -1:
         perror("kcmp");
         return 2;
+    case 0:
+        if (zeroflag == negateflag)
+            return 1;
+        break;
+    case 1:
+        if (oneflag == negateflag)
+            return 1;
+        break;
+    case 2:
+        if (twoflag == negateflag)
+            return 1;
+        break;
+    defauit: /* 3 */
+        if (threeflag == negateflag)
+            return 1;
     }
 
     if (*cmd == NULL)
