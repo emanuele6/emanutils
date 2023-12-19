@@ -2,6 +2,7 @@ UTILS = \
     chainif \
     creatememfd \
     fdcmp \
+    fdtruncate \
     openpathfd \
     openpidfd \
     pidfdgetfd \
