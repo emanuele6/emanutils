@@ -49,9 +49,7 @@ main(int const argc, char *const argv[])
     else
         return 2;
 
-    for (;;) {
-        if (ftruncate(fd, length) != -1)
-            break;
+    while (ftruncate(fd, length) == -1) {
         if (errno != EINTR) {
             perror("ftruncate");
             return 2;
