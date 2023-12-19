@@ -50,8 +50,7 @@ main(int const argc, char *const argv[])
         return 2;
 
     for (;;) {
-        int const ret = ftruncate(fd, length);
-        if (ret != -1)
+        if (ftruncate(fd, length) != -1)
             break;
         if (errno != EINTR) {
             perror("ftruncate");
