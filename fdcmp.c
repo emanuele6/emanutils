@@ -90,8 +90,8 @@ main(int const argc, char *argv[])
 
     int fd1;
     int fd2;
-    if (!str2posint(&fd1, argv[optind], "Invalid fd1\n") ||
-        !str2posint(&fd2, argv[optind + 1], "Invalid fd2\n")) {
+    if (!str2posint(&fd1, argv[optind], "Invalid fd1.\n") ||
+        !str2posint(&fd2, argv[optind + 1], "Invalid fd2.\n")) {
         return 2;
     }
 
@@ -100,7 +100,7 @@ main(int const argc, char *argv[])
     pid_t pid1;
     if (pid1_str) {
         int intpid;
-        if (!str2posint(&intpid, pid1_str, "Invalid pid1\n"))
+        if (!str2posint(&intpid, pid1_str, "Invalid pid1.\n"))
             return 2;
         pid1 = (pid_t)intpid;
     } else {
@@ -109,7 +109,7 @@ main(int const argc, char *argv[])
     pid_t pid2;
     if (pid2_str) {
         int intpid;
-        if (!str2posint(&intpid, pid2_str, "Invalid pid2\n"))
+        if (!str2posint(&intpid, pid2_str, "Invalid pid2.\n"))
             return 2;
         pid2 = (pid_t)intpid;
     } else {
