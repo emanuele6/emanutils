@@ -45,7 +45,7 @@ main(int const argc, char *const argv[])
     if (argc <= 2)
         length = 0;
     else if (str2posint(&lengthint, argv[2], "Invalid length.\n"))
-        length = (int)lengthint;
+        length = (off_t)lengthint;
     else
         return 2;
 
