@@ -38,7 +38,7 @@ main(int const argc, char *argv[])
 {
     bool appendflag = false;
 
-    for (int opt; (opt = getopt(argc, argv, "A")) != -1;) {
+    for (int opt; (opt = getopt(argc, argv, "+A")) != -1;) {
         switch (opt) {
         case 'A':
             appendflag = true;

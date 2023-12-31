@@ -48,7 +48,7 @@ main(int const argc, char *argv[])
     bool envflag = false;
     bool negateflag = false;
 
-    for (int opt; opt = getopt(argc, argv, "0123enp:P:"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "+0123enp:P:"), opt != -1;) {
         switch (opt) {
         case '0':
             zeroflag = true;
