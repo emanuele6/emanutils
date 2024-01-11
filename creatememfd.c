@@ -7,20 +7,42 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-int
-main(int const argc, char *const argv[])
+void
+usage()
 {
-    if (argc <= 3) {
-        if (EOF == fputs("Usage: creatememfd fd name cmd [args]...\n",
-                         stderr)) {
-            perror("fputs");
+    if (EOF == fputs("Usage: creatememfd [-S] fd name cmd [args]...\n",
+                     stderr)) {
+        perror("fputs");
+    }
+}
+
+int
+main(int const argc, char *argv[])
+{
+    int memfdflags = 0;
+
+    for (int opt; opt = getopt(argc, argv, "+S"), opt != -1;) {
+        switch (opt) {
+        case 'S':
+            memfdflags |= MFD_ALLOW_SEALING;
+            break;
+        default:
+            return 2;
         }
+    }
+
+    if (argc - optind < 3) {
+        usage();
         return 2;
     }
 
+    char const *const argfd = argv[optind];
+    char const *const name = argv[optind + 1];
+    char *const *const command = &argv[optind + 2];
+
     char *endptr;
     errno = 0;
-    long const longfd = strtol(argv[1], &endptr, 10);
+    long const longfd = strtol(argfd, &endptr, 10);
     if (errno) {
         perror("strtol");
         return 2;
@@ -32,7 +54,7 @@ main(int const argc, char *const argv[])
     }
     int const fd = (int)longfd;
 
-    int const memfd = memfd_create(argv[2], 0);
+    int const memfd = memfd_create(name, memfdflags);
     if (memfd == -1) {
         perror("memfd_create");
         return 2;
@@ -56,7 +78,7 @@ main(int const argc, char *const argv[])
         }
     }
 
-    (void)execvp(argv[3], &argv[3]);
+    (void)execvp(*command, command);
     perror("execvp");
     return 2;
 }
