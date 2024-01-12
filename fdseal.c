@@ -10,8 +10,8 @@
 #include <unistd.h>
 
 static struct sealinfo {
-    int flag; 
-    char *string;
+    int flag;
+    char const *string;
 } const infos[] = {
 #define SEAL(s) { F_SEAL_ ## s, "F_SEAL_" #s, }
     SEAL(SEAL),
