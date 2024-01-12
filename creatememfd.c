@@ -1,4 +1,4 @@
-#define _GNU_SOURCE /* memfd_create */
+#define _GNU_SOURCE /* memfd_create, MFD_ALLOW_SEALING */
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
