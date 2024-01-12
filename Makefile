@@ -3,6 +3,7 @@ UTILS = \
     creatememfd \
     fdcmp \
     fdtruncate \
+    fdseal \
     openpathfd \
     openpidfd \
     pidfdgetfd \

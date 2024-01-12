@@ -3,6 +3,7 @@
 chainif
 creatememfd
 fdcmp
+fdseal
 fdtruncate
 openpathfd
 openpidfd
