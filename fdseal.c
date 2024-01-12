@@ -9,7 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-struct sealinfo {
+static struct sealinfo {
     int flag; 
     char *string;
 } const infos[] = {
@@ -34,27 +34,26 @@ usage()
         perror("fputs");
 }
 
-static bool
-fd_from_string(char const string[], int *v)
+static int
+fd_from_string(char const string[])
 {
     char *endptr;
     errno = 0;
     long const longfd = strtol(string, &endptr, 10);
     if (longfd == LONG_MAX && errno != 0) {
         perror("strtol");
-        return false;
+        return -1;
     }
     if (longfd < 0 || longfd > INT_MAX || *endptr != '\0') {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
-        return false;
+        return -1;
     }
-    *v = (int)longfd;
-    return true;
+    return (int)longfd;
 }
 
 static bool
-seal_from_string(char const string[], int *v)
+seal_from_string(char const string[], int *const v)
 {
     for (struct sealinfo const *si = infos; si->flag; ++si) {
         if (strcmp(string, si->string) == 0) {
@@ -93,8 +92,8 @@ do_add(int const argc, char *argv[])
     char const *const argfd = argv[optind];
     char **const command = &argv[optind + 1];
 
-    int fd;
-    if (!fd_from_string(argfd, &fd))
+    int const fd = fd_from_string(argfd);
+    if (fd < 0)
         return 2;
 
     if (fcntl(fd, F_ADD_SEALS, seals) != 0) {
@@ -146,8 +145,8 @@ do_check(int const argc, char *argv[])
     char const *const argfd = argv[optind];
     char **const command = &argv[optind + 1];
 
-    int fd;
-    if (!fd_from_string(argfd, &fd))
+    int const fd = fd_from_string(argfd);
+    if (fd < 0)
         return 2;
 
     int fdseals = fcntl(fd, F_GET_SEALS);
@@ -184,8 +183,8 @@ do_get(int const argc, char *argv[])
         return 2;
     }
 
-    int fd;
-    if (!fd_from_string(argv[optind], &fd))
+    int const fd = fd_from_string(argv[optind]);
+    if (fd < 0)
         return 2;
 
     int seals = fcntl(fd, F_GET_SEALS);
