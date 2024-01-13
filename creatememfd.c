@@ -19,7 +19,7 @@ usage()
 int
 main(int const argc, char *argv[])
 {
-    int memfdflags = 0;
+    unsigned memfdflags = 0;
 
     for (int opt; opt = getopt(argc, argv, "+S"), opt != -1;) {
         switch (opt) {
