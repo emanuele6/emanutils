@@ -7,7 +7,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-void
+static void
 usage()
 {
     if (EOF == fputs("Usage: creatememfd [-S] fd name cmd [args]...\n",
