@@ -8,6 +8,7 @@ UTILS = \
     openpidfd \
     pidfdgetfd \
     pollinfd \
+    secretmemfd \
 
 all: $(UTILS)
 .PHONY: all

@@ -9,3 +9,4 @@ openpathfd
 openpidfd
 pidfdgetfd
 pollinfd
+secretmemfd
