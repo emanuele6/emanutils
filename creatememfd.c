@@ -10,10 +10,10 @@
 static void
 usage()
 {
-    if (EOF == fputs("Usage: creatememfd [-S] fd name cmd [args]...\n",
-                     stderr)) {
+    static char const message[] =
+        "Usage: creatememfd [-S] fd name cmd [args]...\n";
+    if (fputs(message, stderr) == EOF)
         perror("fputs");
-    }
 }
 
 int
@@ -27,6 +27,7 @@ main(int const argc, char *argv[])
             memfdflags |= MFD_ALLOW_SEALING;
             break;
         default:
+            usage();
             return 2;
         }
     }
