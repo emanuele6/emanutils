@@ -32,7 +32,7 @@ main(int const argc, char *const argv[])
         }
     }
 
-    if (argc - optind <= 3) {
+    if (argc - optind < 3) {
         usage();
         return 2;
     }
