@@ -44,7 +44,7 @@ main(int const argc, char *const argv[])
             perror("poll");
             return 2;
         }
-        if (pollfd.revents & POLLHUP)
+        if (pollfd.revents & (POLLHUP | POLLNVAL | POLLERR))
             return 1;
     } while (!(pollfd.revents & POLLIN));
 
