@@ -8,20 +8,42 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+static void
+usage()
+{
+    static char const message[] =
+        "Usage: openpathfd [-L] fd file cmd [args]...\n";
+    if (fputs(message, stderr) == EOF)
+        perror("fputs");
+}
+
 int
 main(int const argc, char *const argv[])
 {
-    if (argc <= 3) {
-        if (EOF == fputs("Usage: openpathfd fd file cmd [args]...\n",
-                         stderr)) {
-            perror("fputs");
+    int openflags = O_PATH|O_NOFOLLOW;
+    for (int opt; opt = getopt(argc, argv, "+L"), opt != -1;) {
+        switch (opt) {
+        case 'L':
+            openflags &= ~O_NOFOLLOW;
+            break;
+        default:
+            usage();
+            return 2;
         }
+    }
+
+    if (argc - optind <= 3) {
+        usage();
         return 2;
     }
 
+    char const *const argfd = argv[optind];
+    char const *const path = argv[optind + 1];
+    char *const *const command = &argv[optind + 2];
+
     char *endptr;
     errno = 0;
-    long const longfd = strtol(argv[1], &endptr, 10);
+    long const longfd = strtol(argfd, &endptr, 10);
     if (errno) {
         perror("strtol");
         return 2;
@@ -35,7 +57,7 @@ main(int const argc, char *const argv[])
 
     int openfd;
     do {
-        openfd = open(argv[2], O_PATH|O_NOFOLLOW);
+        openfd = open(path, openflags);
     } while (openfd == -1 && errno == EINTR);
     if (openfd == -1) {
         perror("open");
@@ -60,7 +82,7 @@ main(int const argc, char *const argv[])
         }
     }
 
-    (void)execvp(argv[3], &argv[3]);
+    (void)execvp(*command, command);
     perror("execvp");
     return 2;
 }
