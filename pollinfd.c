@@ -1,57 +1,94 @@
 #include <errno.h>
 #include <limits.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <sys/poll.h>
 #include <unistd.h>
 
-int
-main(int const argc, char *const argv[])
+static void
+usage()
 {
-    if (argc <= 1) {
-        if (EOF == fputs("Usage: pollinfd fd [cmd] [args]...\n",
-                         stderr)) {
-            perror("fputs");
-        }
-        return 2;
-    }
+    static char const message[] =
+        "Usage: pollinfd [-t timeout] fd [cmd] [args]...\n";
+    if (fputs(message, stderr) == EOF)
+        perror("fputs");
+}
 
+static bool
+str2num(char const str[], int const min, int const max, int *const out,
+        char const err[])
+{
     char *endptr;
     errno = 0;
-    long const longfd = strtol(argv[1], &endptr, 10);
+    long const longnum = strtol(str, &endptr, 10);
     if (errno) {
         perror("strtol");
-        return 2;
+        return false;
     }
-    if (longfd < 0 || longfd > INT_MAX || *endptr != '\0') {
-        if (fputs("Invalid argument.\n", stderr) == EOF)
+    if (longnum < min || longnum > max || *endptr != '\0') {
+        if (fputs(err, stderr) == EOF)
             perror("fputs");
+        return false;
+    }
+    *out = (int)longnum;
+    return true;
+}
+
+int
+main(int const argc, char *argv[])
+{
+    int timeout = -1;
+
+    for (int opt; opt = getopt(argc, argv, "+t:"), opt != -1;) {
+        switch (opt) {
+        case 't': {
+            static const char etimeout[] = "Invalid timeout.\n";
+            if (!str2num(optarg, INT_MIN, INT_MAX, &timeout, etimeout))
+                return 2;
+            break;
+        }
+        default:
+            usage();
+            return 2;
+        }
+    }
+
+    if (argc <= optind) {
+        usage();
         return 2;
     }
-    int const fd = (int)longfd;
 
-    int ret;
+    char const *const argfd = argv[optind];
+    char **const command = &argv[optind + 1];
+
     struct pollfd pollfd = {
-        .fd = fd,
         .events = POLLIN,
     };
+
+    if (!str2num(argfd, 0, INT_MAX, &pollfd.fd, "Invalid fd.\n"))
+        return 2;
+
     do {
-        do {
-            ret = poll(&pollfd, 1, -1);
-        } while (ret == -1 && errno == EINTR);
-        if (ret == -1) {
+        switch (poll(&pollfd, 1, timeout)) {
+        case 0:
+            return 1;
+        case -1:
+            if (errno == EINTR)
+                continue;
             perror("poll");
             return 2;
         }
         if (pollfd.revents & (POLLHUP | POLLNVAL | POLLERR))
             return 1;
-    } while (!(pollfd.revents & POLLIN));
+        /* (pollfd.revents & POLLIN) */
+    } while (0);
 
-    if (argc == 2)
+    if (!*command)
         return 0;
 
-    (void)execvp(argv[2], &argv[2]);
+    (void)execvp(*command, command);
     perror("execvp");
     return 2;
 }
