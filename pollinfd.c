@@ -80,10 +80,18 @@ main(int const argc, char *argv[])
             perror("poll");
             return 2;
         }
-        if (pollfd.revents & (POLLHUP | POLLNVAL | POLLERR))
-            return 1;
-        /* (pollfd.revents & POLLIN) */
     } while (0);
+
+    if (!(pollfd.revents & POLLIN)) {
+        if (pollfd.revents & POLLNVAL) {
+            static char const epollnval[] =
+                "File descriptor cannot be used with poll.\n";
+            if (fputs(epollnval, stderr) == EOF)
+                perror("fputs");
+            return 2;
+        }
+        return 1;
+    }
 
     if (!*command)
         return 0;
