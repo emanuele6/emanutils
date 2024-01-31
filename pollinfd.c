@@ -75,7 +75,7 @@ main(int const argc, char *argv[])
         case 0:
             return 1;
         case -1:
-            if (errno == EINTR)
+            if (errno == EINTR || errno == EAGAIN)
                 continue;
             perror("poll");
             return 2;
