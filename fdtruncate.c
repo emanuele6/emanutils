@@ -6,25 +6,6 @@
 
 #include <unistd.h>
 
-static bool
-str2posint(int *const intp, const char string[], const char error[])
-{
-    char *endptr;
-    errno = 0;
-    long const longnum = strtol(string, &endptr, 10);
-    if (errno) {
-        perror("strtol");
-        return false;
-    }
-    if (longnum < 0 || longnum > INT_MAX || *endptr != '\0') {
-        if (fputs(error, stderr) == EOF)
-            perror("fputs");
-        return false;
-    }
-    *intp = (int)longnum;
-    return true;
-}
-
 int
 main(int const argc, char *const argv[])
 {
@@ -36,18 +17,36 @@ main(int const argc, char *const argv[])
         return 2;
     }
 
-    int fd;
-    if (!str2posint(&fd, argv[1], "Invalid fd.\n"))
+    char *endptr;
+    errno = 0;
+    long const longfd = strtol(argv[1], &endptr, 10);
+    if (errno) {
+        perror("strtol");
         return 2;
+    }
+    if (longfd < 0 || longfd > INT_MAX || *endptr) {
+        if (fputs("Invalid fd.\n", stderr) == EOF)
+            perror("fputs");
+        return 2;
+    }
+    int const fd = (int)longfd;
 
     off_t length;
-    int lengthint;
     if (argc <= 2)
         length = 0;
-    else if (str2posint(&lengthint, argv[2], "Invalid length.\n"))
-        length = (off_t)lengthint;
-    else
-        return 2;
+    else {
+        long const longlength = strtol(argv[2], &endptr, 10);
+        if (errno) {
+            perror("strtol");
+            return 2;
+        }
+        if (longlength < 0 || *endptr) {
+            if (fputs("Invalid offset.\n", stderr) == EOF)
+                perror("fputs");
+            return 2;
+        }
+        length = (off_t)longlength;
+    }
 
     while (ftruncate(fd, length) == -1) {
         if (errno != EINTR) {
