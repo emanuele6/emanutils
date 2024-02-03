@@ -41,7 +41,7 @@ main(int const argc, char *const argv[])
             return 2;
         }
         if (longlength < 0 || *endptr) {
-            if (fputs("Invalid offset.\n", stderr) == EOF)
+            if (fputs("Invalid length.\n", stderr) == EOF)
                 perror("fputs");
             return 2;
         }
