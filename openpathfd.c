@@ -23,11 +23,11 @@ main(int const argc, char *const argv[])
     int openflags = O_PATH | O_NOFOLLOW;
     for (int opt; opt = getopt(argc, argv, "+dL"), opt != -1;) {
         switch (opt) {
-        case 'L':
-            openflags &= ~O_NOFOLLOW;
-            break;
         case 'd':
             openflags |= O_DIRECTORY;
+            break;
+        case 'L':
+            openflags &= ~O_NOFOLLOW;
             break;
         default:
             usage();
