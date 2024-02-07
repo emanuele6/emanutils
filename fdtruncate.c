@@ -32,9 +32,9 @@ main(int const argc, char *const argv[])
     int const fd = (int)longfd;
 
     off_t length;
-    if (argc <= 2)
+    if (argc <= 2) {
         length = 0;
-    else {
+    } else {
         long const longlength = strtol(argv[2], &endptr, 10);
         if (errno) {
             perror("strtol");
