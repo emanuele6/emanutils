@@ -12,7 +12,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: openpathfd [-L] fd file cmd [args]...\n";
+        "Usage: openpathfd [-Ld] fd file cmd [args]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -20,11 +20,14 @@ usage()
 int
 main(int const argc, char *const argv[])
 {
-    int openflags = O_PATH|O_NOFOLLOW;
-    for (int opt; opt = getopt(argc, argv, "+L"), opt != -1;) {
+    int openflags = O_PATH | O_NOFOLLOW;
+    for (int opt; opt = getopt(argc, argv, "+dL"), opt != -1;) {
         switch (opt) {
         case 'L':
             openflags &= ~O_NOFOLLOW;
+            break;
+        case 'd':
+            openflags |= O_DIRECTORY;
             break;
         default:
             usage();
