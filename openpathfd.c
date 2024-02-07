@@ -12,7 +12,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: openpathfd [-Ld] fd file cmd [args]...\n";
+        "Usage: openpathfd [-dL] fd file cmd [args]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
