@@ -32,7 +32,7 @@ main(int const argc, char *const argv[])
                 perror("fputs");
             return 2;
         }
-        *(int *const []){ &fd, &pid }[i] = (int)longnum;
+        *(int *const[]){ &fd, &pid }[i] = (int)longnum;
     }
 
     int const pidfd = syscall(SYS_pidfd_open, (pid_t)pid, 0);

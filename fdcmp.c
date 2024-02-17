@@ -9,7 +9,8 @@
 #include <unistd.h>
 
 static bool
-str2posint(int *const intp, const char string[], const char error[])
+str2posint(int *const intp, char const string[const],
+           char const error[const])
 {
     char *endptr;
     errno = 0;
@@ -37,7 +38,7 @@ usage()
 }
 
 int
-main(int const argc, char *argv[])
+main(int const argc, char *argv[const])
 {
     char const *pid1_str = NULL;
     char const *pid2_str = NULL;

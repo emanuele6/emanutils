@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 int
-main(int const argc, char *const argv[])
+main(int const argc, char *const argv[const])
 {
     if (argc <= 4) {
         if (EOF == fputs("Usage: "
@@ -33,7 +33,7 @@ main(int const argc, char *const argv[])
                 perror("fputs");
             return 2;
         }
-        *(int *const []){ &pidfd, &targetfd, &fd }[i] = (int)longnum;
+        *(int *const[]){ &pidfd, &targetfd, &fd }[i] = (int)longnum;
     }
 
     int const gotfd = syscall(SYS_pidfd_getfd, pidfd, targetfd, 0);

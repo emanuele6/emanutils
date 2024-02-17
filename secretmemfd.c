@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 int
-main(int const argc, char *const argv[])
+main(int const argc, char *const argv[const])
 {
     if (argc <= 2) {
         if (EOF == fputs("Usage: secretmemfd fd cmd [args]...\n",

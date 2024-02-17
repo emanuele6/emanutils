@@ -10,7 +10,7 @@
 extern char *const *const environ;
 
 static char **
-getblock(char *args[])
+getblock(char *args[const])
 {
     if (!*args)
         return NULL;
@@ -34,7 +34,7 @@ usage()
 }
 
 int
-main(int const argc, char *argv[])
+main(int const argc, char *argv[const])
 {
     bool appendflag = false;
 

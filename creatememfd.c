@@ -17,7 +17,7 @@ usage()
 }
 
 int
-main(int const argc, char *argv[])
+main(int const argc, char *argv[const])
 {
     unsigned memfdflags = 0;
 

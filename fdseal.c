@@ -35,7 +35,7 @@ usage()
 }
 
 static int
-fd_from_string(char const string[])
+fd_from_string(char const string[const])
 {
     char *endptr;
     errno = 0;
@@ -53,7 +53,7 @@ fd_from_string(char const string[])
 }
 
 static bool
-seal_from_string(char const string[], int *const v)
+seal_from_string(char const string[const], int *const v)
 {
     for (struct sealinfo const *si = infos; si->flag; ++si) {
         if (strcmp(string, si->string) == 0) {
@@ -65,7 +65,7 @@ seal_from_string(char const string[], int *const v)
 }
 
 static int
-do_add(int const argc, char *argv[])
+do_add(int const argc, char *argv[const])
 {
     int seals = 0;
     for (int opt; opt = getopt(argc, argv, "+s:"), opt != -1;) {
@@ -110,7 +110,7 @@ do_add(int const argc, char *argv[])
 }
 
 static int
-do_check(int const argc, char *argv[])
+do_check(int const argc, char *argv[const])
 {
     bool exactflag = false;
     bool negateflag = false;
@@ -169,7 +169,7 @@ do_check(int const argc, char *argv[])
 }
 
 static int
-do_get(int const argc, char *argv[])
+do_get(int const argc, char *argv[const])
 {
     for (int opt; opt = getopt(argc, argv, "+"), opt != -1;) {
         switch (opt) {
@@ -229,7 +229,7 @@ do_get(int const argc, char *argv[])
 }
 
 int
-main(int const argc, char *argv[])
+main(int const argc, char *argv[const])
 {
     if (argc > 1) {
         if (strcmp(argv[1], "add") == 0)
