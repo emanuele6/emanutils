@@ -28,7 +28,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: chainif [-A] { condition... } { chain... } cmd...\n";
+        "Usage: chainif [-An] { condition... } { chain... } cmd...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -37,11 +37,15 @@ int
 main(int const argc, char *argv[const])
 {
     bool appendflag = false;
+    bool negateflag = false;
 
-    for (int opt; (opt = getopt(argc, argv, "+A")) != -1;) {
+    for (int opt; (opt = getopt(argc, argv, "+An")) != -1;) {
         switch (opt) {
         case 'A':
             appendflag = true;
+            break;
+        case 'n':
+            negateflag = true;
             break;
         default:
             usage();
@@ -84,7 +88,7 @@ main(int const argc, char *argv[const])
         dochain = WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
 
-    char *const *const toexec = dochain
+    char *const *const toexec = dochain != negateflag
         ? memmove(&chain[1], chain, (cmd - &chain[1]) * sizeof *chain)
         : (appendflag ? chain : cmd);
 
