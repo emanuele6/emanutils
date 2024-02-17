@@ -1,6 +1,8 @@
 #include <errno.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include <spawn.h>
@@ -28,7 +30,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: chainif [-An] { condition... } { chain... } cmd...\n";
+        "Usage: chainif [-AEn] { condition... } { chain... } cmd...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -37,12 +39,16 @@ int
 main(int const argc, char *argv[const])
 {
     bool appendflag = false;
+    bool envflag = false;
     bool negateflag = false;
 
-    for (int opt; (opt = getopt(argc, argv, "+An")) != -1;) {
+    for (int opt; (opt = getopt(argc, argv, "+AEn")) != -1;) {
         switch (opt) {
         case 'A':
             appendflag = true;
+            break;
+        case 'E':
+            envflag = true;
             break;
         case 'n':
             negateflag = true;
@@ -66,6 +72,7 @@ main(int const argc, char *argv[const])
     }
 
     bool dochain = *condition == NULL;
+    unsigned char exitstatus = 0;
     if (!dochain) {
         pid_t pid;
         int const ret = posix_spawnp(&pid, *condition, NULL, NULL,
@@ -85,6 +92,7 @@ main(int const argc, char *argv[const])
                 return 2;
             }
         }
+        exitstatus = WEXITSTATUS(status);
         dochain = WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
 
@@ -94,6 +102,27 @@ main(int const argc, char *argv[const])
 
     if (!*toexec)
         return 0;
+
+    if (envflag) {
+        char buf[3 + 1];
+        int const ret = snprintf(buf, sizeof buf, "%hhu", exitstatus);
+        if (ret < 0) {
+            perror("snprintf");
+            return 2;
+        }
+        if (ret >= sizeof buf) {
+            static char const efmt[] =
+                "snprintf: the buffer is %d byte%s too small.\n";
+            ptrdiff_t const diff = ret - sizeof buf;
+            if (fprintf(stderr, efmt, diff, &"s"[diff == 1]) == EOF)
+                perror("fprintf");
+            return 2;
+        }
+        if (setenv("?", buf, 1)) {
+            perror("setenv");
+            return 2;
+        }
+    }
 
     (void)execvp(*toexec, toexec);
     perror("execvp");
