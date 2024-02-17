@@ -112,7 +112,7 @@ main(int const argc, char *argv[const])
         }
         if (ret >= sizeof buf) {
             static char const efmt[] =
-                "snprintf: the buffer is %d byte%s too small.\n";
+                "snprintf: the buffer is %zd byte%s too small.\n";
             ptrdiff_t const diff = ret - sizeof buf;
             if (fprintf(stderr, efmt, diff, &"s"[diff == 1]) == EOF)
                 perror("fprintf");
