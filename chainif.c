@@ -92,7 +92,9 @@ main(int const argc, char *argv[const])
                 return 2;
             }
         }
-        exitstatus = WEXITSTATUS(status);
+        exitstatus = WIFEXITED(status)
+            ? WEXITSTATUS(status)
+            : 128 + WTERMSIG(status);
         dochain = WIFEXITED(status) && WEXITSTATUS(status) == 0;
     }
 
