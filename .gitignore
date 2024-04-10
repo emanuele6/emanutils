@@ -9,4 +9,5 @@ openpathfd
 openpidfd
 pidfdgetfd
 pollinfd
+psendfd
 secretmemfd

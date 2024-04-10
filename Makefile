@@ -8,6 +8,7 @@ UTILS = \
     openpidfd \
     pidfdgetfd \
     pollinfd \
+    psendfd \
     secretmemfd \
 
 all: $(UTILS)
