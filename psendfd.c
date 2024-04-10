@@ -30,7 +30,7 @@ str2int(char const str[const])
         perror("strtol");
         return -2;
     }
-    if (longnum > INT_MAX || *endptr != '\0') {
+    if (longnum < INT_MIN || longnum > INT_MAX || *endptr != '\0') {
         return -2;
     }
     return (int)longnum;
