@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <sys/ptrace.h>
+#include <sys/reg.h>
 #include <sys/syscall.h>
 #include <sys/user.h>
 #include <sys/wait.h>
@@ -61,7 +62,7 @@ nextstop(pid_t const pid, int *const status)
 }
 
 static unsigned long
-do_syscall(pid_t const pid, struct user_regs_struct const *const regs)
+do_syscall(pid_t const pid, struct user_regs_struct *const regs)
 {
     if (ptrace(PTRACE_SETREGS, pid, 0, regs) == -1) {
         perror("ptrace(PTRACE_SETREGS)");
@@ -77,8 +78,11 @@ do_syscall(pid_t const pid, struct user_regs_struct const *const regs)
             if (!nextstop(pid, &status))
                 return 2;
         } while (WSTOPSIG(status) != SIGTRAP);
-        if (ptrace(PTRACE_GETREGS, pid, 0, regs) == -1) {
-            perror("ptrace(PTRACE_GETREGS)");
+
+        errno = 0;
+        regs->rax = ptrace(PTRACE_PEEKUSER, pid, 8 * RAX, 0);
+        if (errno) {
+            perror("ptrace(PTRACE_PEEKUSER)");
             return false;
         }
     } while (regs->rax == -ENOSYS);
