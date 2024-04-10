@@ -189,7 +189,7 @@ main(int const argc, char *const argv[const])
     int const intpid = str2int(argv[optind]);
     if (intpid < 0) {
         if (fputs("Invalid pid.\n", stderr) == EOF)
-            perror("stderr");
+            perror("fputs");
         return 2;
     }
     pid_t const pid = (pid_t)intpid;
@@ -197,14 +197,14 @@ main(int const argc, char *const argv[const])
     int const fd = str2int(argv[optind + 1]);
     if (fd < -1) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
-            perror("stderr");
+            perror("fputs");
         return 2;
     }
 
     int const targetfd = str2int(argv[optind + 2]);
     if (targetfd < 0) {
         if (fputs("Invalid targetfd.\n", stderr) == EOF)
-            perror("stderr");
+            perror("fputs");
         return 2;
     }
 
