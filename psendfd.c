@@ -250,7 +250,7 @@ main(int const argc, char *const argv[const])
         return ret;
 
     if (ptrace(PTRACE_DETACH, pid, 0, 0) == -1) {
-        perror("ptrace(PTRACE_DETACH");
+        perror("ptrace(PTRACE_DETACH)");
         return 2;
     }
 
