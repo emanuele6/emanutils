@@ -16,7 +16,7 @@ static void
 usage()
 {
     static char const msg[] =
-        "usage: psendfd pid fd targetfd [cmd]...\n";
+        "Usage: psendfd pid fd targetfd [cmd]...\n";
     if (fputs(msg, stderr) == EOF)
         perror("fputs");
 }
