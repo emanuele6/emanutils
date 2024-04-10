@@ -166,7 +166,7 @@ int
 main(int const argc, char *const argv[const])
 {
     bool fflag = false;
-    for (int opt; opt = getopt(argc, argv, "+"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "+f"), opt != -1;) {
         switch (opt) {
         case 'f':
             fflag = true;
