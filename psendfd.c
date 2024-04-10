@@ -246,8 +246,14 @@ main(int const argc, char *const argv[const])
         return 2;
     }
 
-    if (!ret || argc - 3 <= optind)
+    if (ret || argc - 3 <= optind)
         return ret;
+
+    if (ptrace(PTRACE_DETACH, pid, 0, 0) == -1) {
+        perror("ptrace(PTRACE_DETACH");
+        return 2;
+    }
+
     (void)execvp(argv[optind + 3], &argv[optind + 3]);
     perror("execvp");
     return 2;
