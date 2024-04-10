@@ -61,7 +61,7 @@ nextstop(pid_t const pid, int *const status)
     return true;
 }
 
-static unsigned long
+static bool
 do_syscall(pid_t const pid, struct user_regs_struct *const regs)
 {
     if (ptrace(PTRACE_SETREGS, pid, 0, regs) == -1) {
@@ -76,7 +76,7 @@ do_syscall(pid_t const pid, struct user_regs_struct *const regs)
                 return false;
             }
             if (!nextstop(pid, &status))
-                return 2;
+                return false;
         } while (WSTOPSIG(status) != SIGTRAP);
 
         errno = 0;
