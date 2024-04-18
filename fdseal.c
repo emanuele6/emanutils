@@ -28,7 +28,7 @@ usage()
 {
     static char const message[] =
         "Usage: fdseal add [-s SEAL]... FD [CMD]...\n"
-        "Usage: fdseal check [-xn] [-s SEAL]... FD [CMD]...\n"
+        "Usage: fdseal check [-nx] [-s SEAL]... FD [CMD]...\n"
         "Usage: fdseal get FD\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
