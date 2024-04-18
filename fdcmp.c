@@ -138,7 +138,7 @@ main(int const argc, char *argv[const])
             return 1;
         res_str = "2";
         break;
-    defauit: /* 3 */
+    default: /* 3 */
         if (threeflag == negateflag)
             return 1;
         res_str = "3";
