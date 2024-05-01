@@ -16,7 +16,7 @@ static void
 usage()
 {
     static char const msg[] =
-        "Usage: psendfd pid fd targetfd [cmd]...\n";
+        "Usage: psendfd [-f] [-P sourcepid] pid fd targetfd [cmd]...\n";
     if (fputs(msg, stderr) == EOF)
         perror("fputs");
 }
@@ -110,13 +110,13 @@ do_close(pid_t const pid, int const fd, bool const fflag,
 
 static int
 do_send(pid_t const pid, int const fd, int const targetfd,
+        pid_t const sourcepid,
         struct user_regs_struct const *const savedregs)
 {
     int ret = 0;
-    pid_t const mypid = getpid();
     struct user_regs_struct regs = *savedregs;
     regs.rax = SYS_pidfd_open;
-    regs.rdi = mypid;
+    regs.rdi = sourcepid >= 0 ? sourcepid : getpid();
     regs.rsi = 0;
     if (!do_syscall(pid, &regs))
         return 2;
@@ -169,11 +169,20 @@ do_send(pid_t const pid, int const fd, int const targetfd,
 int
 main(int const argc, char *const argv[const])
 {
+    pid_t sourcepid = -1;
     bool fflag = false;
-    for (int opt; opt = getopt(argc, argv, "+f"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "+fP:"), opt != -1;) {
         switch (opt) {
         case 'f':
             fflag = true;
+            break;
+        case 'P':
+            sourcepid = str2int(optarg);
+            if (sourcepid <= -2) {
+                if (fputs("Invalid source pid.\n", stderr) == EOF)
+                    perror("fputs");
+                return 2;
+            }
             break;
         default:
             usage();
@@ -235,7 +244,7 @@ main(int const argc, char *const argv[const])
 
     int const ret = fd == -1
         ? do_close(pid, targetfd, fflag, &savedregs)
-        : do_send(pid, fd, targetfd, &savedregs);
+        : do_send(pid, fd, targetfd, sourcepid, &savedregs);
 
     if (ptrace(PTRACE_POKETEXT, pid, savedregs.rip, word) == -1) {
         perror("ptrace(PTRACE_POKETEXT)");
