@@ -26,15 +26,15 @@ str2int(char const str[const])
 {
     char *endptr;
     errno = 0;
-    long const longnum = strtol(str, &endptr, 10);
+    long const num = strtol(str, &endptr, 10);
     if (errno) {
         perror("strtol");
         return -2;
     }
-    if (longnum < INT_MIN || longnum > INT_MAX || *endptr != '\0') {
+    if (endptr == str || num < INT_MIN || num > INT_MAX || *endptr) {
         return -2;
     }
-    return (int)longnum;
+    return (int)num;
 }
 
 static void

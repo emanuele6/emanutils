@@ -17,14 +17,15 @@ main(int const argc, char *const argv[const])
         return 2;
     }
 
+    char *const strfd = argv[1];
     char *endptr;
     errno = 0;
-    long const longfd = strtol(argv[1], &endptr, 10);
+    long const longfd = strtol(strfd, &endptr, 10);
     if (errno) {
         perror("strtol");
         return 2;
     }
-    if (longfd < 0 || longfd > INT_MAX || *endptr != '\0') {
+    if (endptr == strfd || longfd < 0 || longfd > INT_MAX || *endptr) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return 2;

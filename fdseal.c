@@ -35,16 +35,16 @@ usage()
 }
 
 static int
-fd_from_string(char const string[const])
+fd_from_string(char const str[const])
 {
     char *endptr;
     errno = 0;
-    long const longfd = strtol(string, &endptr, 10);
-    if (longfd == LONG_MAX && errno != 0) {
+    long const longfd = strtol(str, &endptr, 10);
+    if (errno) {
         perror("strtol");
         return -1;
     }
-    if (longfd < 0 || longfd > INT_MAX || *endptr != '\0') {
+    if (endptr == str || longfd < 0 || longfd > INT_MAX || *endptr) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return -1;

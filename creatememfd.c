@@ -48,7 +48,7 @@ main(int const argc, char *argv[const])
         perror("strtol");
         return 2;
     }
-    if (longfd < 0 || longfd > INT_MAX || *endptr != '\0') {
+    if (endptr == argfd || longfd < 0 || longfd > INT_MAX || *endptr) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return 2;

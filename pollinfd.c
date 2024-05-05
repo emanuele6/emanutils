@@ -27,7 +27,7 @@ str2num(char const str[const], int const min, int const max,
         perror("strtol");
         return false;
     }
-    if (longnum < min || longnum > max || *endptr != '\0') {
+    if (endptr == str || longnum < min || longnum > max || *endptr) {
         if (fputs(err, stderr) == EOF)
             perror("fputs");
         return false;

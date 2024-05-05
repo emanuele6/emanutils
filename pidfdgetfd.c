@@ -21,19 +21,20 @@ main(int const argc, char *const argv[const])
 
     int pidfd, targetfd, fd;
     for (int i = 0; i < 3; ++i) {
+        char *const str = argv[i + 1];
         char *endptr;
         errno = 0;
-        long const longnum = strtol(argv[i + 1], &endptr, 10);
+        long const num = strtol(str, &endptr, 10);
         if (errno) {
             perror("strtol");
             return 2;
         }
-        if (longnum < 0 || longnum > INT_MAX || *endptr != '\0') {
+        if (endptr == str || num < 0 || num > INT_MAX || *endptr) {
             if (fputs("Invalid argument.\n", stderr) == EOF)
                 perror("fputs");
             return 2;
         }
-        *(int *const[]){ &pidfd, &targetfd, &fd }[i] = (int)longnum;
+        *(int *const[]){ &pidfd, &targetfd, &fd }[i] = (int)num;
     }
 
     int const gotfd = syscall(SYS_pidfd_getfd, pidfd, targetfd, 0);

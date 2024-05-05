@@ -9,17 +9,17 @@
 #include <unistd.h>
 
 static bool
-str2posint(int *const intp, char const string[const],
+str2posint(int *const intp, char const str[const],
            char const error[const])
 {
     char *endptr;
     errno = 0;
-    long const longnum = strtol(string, &endptr, 10);
+    long const longnum = strtol(str, &endptr, 10);
     if (errno) {
         perror("strtol");
         return false;
     }
-    if (longnum < 0 || longnum > INT_MAX || *endptr != '\0') {
+    if (endptr == str || longnum < 0 || longnum > INT_MAX || *endptr) {
         if (fputs(error, stderr) == EOF)
             perror("fputs");
         return false;

@@ -20,19 +20,20 @@ main(int const argc, char *const argv[])
 
     int fd, pid;
     for (int i = 0; i < 2; ++i) {
+        char *const str = argv[i + 1];
         char *endptr;
         errno = 0;
-        long const longnum = strtol(argv[i + 1], &endptr, 10);
+        long const num = strtol(str, &endptr, 10);
         if (errno) {
             perror("strtol");
             return 2;
         }
-        if (longnum < 0 || longnum > INT_MAX || *endptr != '\0') {
+        if (endptr == str || num < 0 || num > INT_MAX || *endptr) {
             if (fputs("Invalid argument.\n", stderr) == EOF)
                 perror("fputs");
             return 2;
         }
-        *(int *const[]){ &fd, &pid }[i] = (int)longnum;
+        *(int *const[]){ &fd, &pid }[i] = (int)num;
     }
 
     int const pidfd = syscall(SYS_pidfd_open, (pid_t)pid, 0);

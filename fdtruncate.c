@@ -17,14 +17,15 @@ main(int const argc, char *const argv[])
         return 2;
     }
 
+    char *const fdstr = argv[1];
     char *endptr;
     errno = 0;
-    long const longfd = strtol(argv[1], &endptr, 10);
+    long const longfd = strtol(fdstr, &endptr, 10);
     if (errno) {
         perror("strtol");
         return 2;
     }
-    if (longfd < 0 || longfd > INT_MAX || *endptr) {
+    if (endptr == fdstr || longfd < 0 || longfd > INT_MAX || *endptr) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
@@ -40,7 +41,7 @@ main(int const argc, char *const argv[])
             perror("strtol");
             return 2;
         }
-        if (longlength < 0 || *endptr) {
+        if (endptr == argv[2] || longlength < 0 || *endptr) {
             if (fputs("Invalid length.\n", stderr) == EOF)
                 perror("fputs");
             return 2;
