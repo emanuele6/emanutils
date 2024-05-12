@@ -6,18 +6,31 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+static void
+usage()
+{
+    static char const msg[] = "Usage: secretmemfd fd cmd [args]...\n";
+    if (fputs(msg, stderr) == EOF)
+        perror("fputs");
+}
+
 int
 main(int const argc, char *const argv[const])
 {
-    if (argc <= 2) {
-        if (EOF == fputs("Usage: secretmemfd fd cmd [args]...\n",
-                         stderr)) {
-            perror("fputs");
+    for (int opt; opt = getopt(argc, argv, "+"), opt != -1;) {
+        switch (opt) {
+        default:
+            usage();
+            return 2;
         }
+    }
+
+    if (argc - optind < 2) {
+        usage();
         return 2;
     }
 
-    char *const strfd = argv[1];
+    char *const strfd = argv[optind];
     char *endptr;
     errno = 0;
     long const longfd = strtol(strfd, &endptr, 10);
@@ -56,7 +69,7 @@ main(int const argc, char *const argv[const])
         }
     }
 
-    (void)execvp(argv[2], &argv[2]);
+    (void)execvp(argv[optind + 1], &argv[optind + 1]);
     perror("execvp");
     return 2;
 }
