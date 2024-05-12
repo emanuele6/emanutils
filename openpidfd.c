@@ -7,20 +7,33 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+static void
+usage()
+{
+    static char const msg[] = "Usage: openpidfd fd pid cmd [args]...\n";
+    if (fputs(msg, stderr) == EOF)
+        perror("fputs");
+}
+
 int
 main(int const argc, char *const argv[])
 {
-    if (argc <= 3) {
-        if (EOF == fputs("Usage: openpidfd fd pid cmd [args]...\n",
-                         stderr)) {
-            perror("fputs");
+    for (int opt; opt = getopt(argc, argv, "+"), opt != -1;) {
+        switch (opt) {
+        default:
+            usage();
+            return 2;
         }
+    }
+
+    if (argc - optind < 3) {
+        usage();
         return 2;
     }
 
     int fd, pid;
     for (int i = 0; i < 2; ++i) {
-        char *const str = argv[i + 1];
+        char *const str = argv[optind + i];
         char *endptr;
         errno = 0;
         long const num = strtol(str, &endptr, 10);
@@ -64,7 +77,7 @@ main(int const argc, char *const argv[])
         }
     }
 
-    (void)execvp(argv[3], &argv[3]);
+    (void)execvp(argv[optind + 2], &argv[optind + 2]);
     perror("execvp");
     return 2;
 }
