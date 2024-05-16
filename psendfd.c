@@ -93,19 +93,19 @@ static int
 do_close(pid_t const pid, int const fd, bool const fflag,
          struct user_regs_struct const *const savedregs)
 {
-    for (;;) {
-        struct user_regs_struct regs = *savedregs;
+    struct user_regs_struct regs = *savedregs;
+
+    do {
         regs.rax = SYS_close;
         regs.rdi = fd;
         if (!do_syscall(pid, &regs))
             return 2;
         if (regs.rax == 0 || (fflag && regs.rax == -EBADF))
             return 0;
-        if (regs.rax == -EINTR)
-            continue;
-        tracee_perror("close", -regs.rax);
-        return 2;
-    }
+    } while (regs.rax == -EINTR);
+
+    tracee_perror("close", -regs.rax);
+    return 2;
 }
 
 static int
