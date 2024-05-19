@@ -153,7 +153,7 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
             regs.rdx = fdmin;
             if (!do_syscall(pid, &regs))
                 return 2;
-            if (regs.rax < 0) {
+            if ((long)regs.rax < 0) {
                 ret = 2;
                 tracee_perror("fcntl(F_DUPFD)", -regs.rax);
             } else {
