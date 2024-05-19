@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +17,8 @@ static void
 usage()
 {
     static char const msg[] =
-        "Usage: psendfd [-f] [-P sourcepid] pid fd targetfd [cmd]...\n";
+        "Usage: psendfd [-ef] [-P sourcepid] pid fd targetfd "
+        "[cmd]...\n";
     if (fputs(msg, stderr) == EOF)
         perror("fputs");
 }
@@ -109,11 +111,12 @@ do_close(pid_t const pid, int const fd, bool const fflag,
 }
 
 static int
-do_send(pid_t const pid, int const fd, int const targetfd,
+do_send(pid_t const pid, int const fd, int *const targetfdp,
         pid_t const sourcepid,
         struct user_regs_struct const *const savedregs)
 {
     int ret = 0;
+    int const targetfd = *targetfdp;
     struct user_regs_struct regs = *savedregs;
     regs.rax = SYS_pidfd_open;
     regs.rdi = sourcepid >= 0 ? sourcepid : getpid();
@@ -163,6 +166,9 @@ do_send(pid_t const pid, int const fd, int const targetfd,
             ret = 2;
     }
 
+    if (!ret)
+        *targetfdp = thefd;
+
     return ret;
 }
 
@@ -170,9 +176,13 @@ int
 main(int const argc, char *const argv[const])
 {
     pid_t sourcepid = -1;
+    bool eflag = false;
     bool fflag = false;
-    for (int opt; opt = getopt(argc, argv, "+fP:"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "+efP:"), opt != -1;) {
         switch (opt) {
+        case 'e':
+            eflag = true;
+            break;
         case 'f':
             fflag = true;
             break;
@@ -210,7 +220,7 @@ main(int const argc, char *const argv[const])
         return 2;
     }
 
-    int const targetfd = str2int(argv[optind + 2]);
+    int targetfd = str2int(argv[optind + 2]);
     if (targetfd < -1 || (fd < 0 && targetfd == -1)) {
         if (fputs("Invalid targetfd.\n", stderr) == EOF)
             perror("fputs");
@@ -244,7 +254,7 @@ main(int const argc, char *const argv[const])
 
     int const ret = fd == -1
         ? do_close(pid, targetfd, fflag, &savedregs)
-        : do_send(pid, fd, targetfd, sourcepid, &savedregs);
+        : do_send(pid, fd, &targetfd, sourcepid, &savedregs);
 
     if (ptrace(PTRACE_POKETEXT, pid, savedregs.rip, word) == -1) {
         perror("ptrace(PTRACE_POKETEXT)");
@@ -257,6 +267,27 @@ main(int const argc, char *const argv[const])
 
     if (ret || argc - 3 <= optind)
         return ret;
+
+    if (fd > 0 && eflag) {
+        char buf[10 + 1];
+        int const sz = snprintf(buf, sizeof buf, "%d", targetfd);
+        if (sz < 0) {
+            perror("snprintf");
+            return 2;
+        }
+        if (sz >= sizeof buf) {
+            static char const efmt[] =
+                "snprintf: the buffer is %zd byte%s too small.\n";
+            ptrdiff_t const diff = ret - sizeof buf;
+            if (fprintf(stderr, efmt, diff, &"s"[diff == 1]) == EOF)
+                perror("fprintf");
+            return 2;
+        }
+        if (setenv("PSENDFD_FD", buf, 1) == -1) {
+            perror("setenv");
+            return 2;
+        }
+    }
 
     if (ptrace(PTRACE_DETACH, pid, 0, 0) == -1) {
         perror("ptrace(PTRACE_DETACH)");
