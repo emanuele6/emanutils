@@ -96,9 +96,10 @@ static int
 do_close(pid_t const pid, int const fd, bool const fflag,
          struct user_regs_struct const *const savedregs)
 {
-    struct user_regs_struct regs = *savedregs;
+    struct user_regs_struct regs;
 
     do {
+        regs = *savedregs;
         regs.rax = SYS_close;
         regs.rdi = fd;
         if (!do_syscall(pid, &regs))
