@@ -123,7 +123,7 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
     regs.rsi = 0;
     if (!do_syscall(pid, &regs))
         return 2;
-    if (regs.rax < 0) {
+    if ((long)regs.rax < 0) {
         tracee_perror("pidfd_open", -regs.rax);
         return 2;
     }
@@ -136,7 +136,7 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
     regs.rdx = 0;
     if (!do_syscall(pid, &regs))
         return 2;
-    if (regs.rax < 0) {
+    if ((long)regs.rax < 0) {
         tracee_perror("pidfd_getfd", -regs.rax);
         return 2;
     }
@@ -158,7 +158,8 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
             ret = 2;
             break;
         }
-        ret = do_close(pid, thefd, false, savedregs);
+        if (do_close(pid, thefd, false, savedregs))
+            ret = 2;
     }
 
     if (ret || pidfd != targetfd) {
