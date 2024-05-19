@@ -139,7 +139,7 @@ do_send(pid_t const pid, int const fd, int const targetfd,
     }
     int const thefd = regs.rax;
 
-    if (thefd != targetfd) {
+    if (targetfd >= 0 && thefd != targetfd) {
         for (;;) {
             regs = *savedregs;
             regs.rax = SYS_dup2;
@@ -211,7 +211,7 @@ main(int const argc, char *const argv[const])
     }
 
     int const targetfd = str2int(argv[optind + 2]);
-    if (targetfd < 0) {
+    if (targetfd < -1 || (fd < 0 && targetfd == -1)) {
         if (fputs("Invalid targetfd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
