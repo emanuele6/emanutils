@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <fcntl.h>
 #include <sys/ptrace.h>
 #include <sys/reg.h>
 #include <sys/syscall.h>
@@ -17,8 +18,8 @@ static void
 usage()
 {
     static char const msg[] =
-        "Usage: psendfd [-ef] [-P sourcepid] pid fd targetfd "
-        "[cmd]...\n";
+        "Usage: psendfd [-ef] [-m mintargetfd] [-P sourcepid] pid fd "
+        "targetfd [cmd]...\n";
     if (fputs(msg, stderr) == EOF)
         perror("fputs");
 }
@@ -113,7 +114,7 @@ do_close(pid_t const pid, int const fd, bool const fflag,
 static int
 do_send(pid_t const pid, int const fd, int *const targetfdp,
         pid_t const sourcepid,
-        struct user_regs_struct const *const savedregs)
+        struct user_regs_struct const *const savedregs, int const fdmin)
 {
     int ret = 0;
     int const targetfd = *targetfdp;
@@ -140,9 +141,28 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
         tracee_perror("pidfd_getfd", -regs.rax);
         return 2;
     }
-    int const thefd = regs.rax;
+    int thefd = regs.rax;
 
-    if (targetfd >= 0 && thefd != targetfd) {
+    if (targetfd < 0) {
+        if (fdmin > thefd) {
+            int const theoldfd = thefd;
+            regs = *savedregs;
+            regs.rax = SYS_fcntl;
+            regs.rdi = thefd;
+            regs.rsi = F_DUPFD;
+            regs.rdx = fdmin;
+            if (!do_syscall(pid, &regs))
+                return 2;
+            if (regs.rax < 0) {
+                ret = 2;
+                tracee_perror("fcntl(F_DUPFD)", -regs.rax);
+            } else {
+                thefd = regs.rax;
+            }
+            if (do_close(pid, theoldfd, false, savedregs))
+                ret = 2;
+        }
+    } else if (thefd != targetfd) {
         for (;;) {
             regs = *savedregs;
             regs.rax = SYS_dup2;
@@ -179,13 +199,24 @@ main(int const argc, char *const argv[const])
     pid_t sourcepid = -1;
     bool eflag = false;
     bool fflag = false;
-    for (int opt; opt = getopt(argc, argv, "+efP:"), opt != -1;) {
+    int fdmin = -1;
+    for (int opt; opt = getopt(argc, argv, "+efm:P:"), opt != -1;) {
         switch (opt) {
         case 'e':
             eflag = true;
             break;
         case 'f':
             fflag = true;
+            break;
+        case 'm':
+            fdmin = str2int(optarg);
+            if (fdmin <= -2) {
+                static char const emsg[] =
+                    "Invalid targetfd lower limit.\n";
+                if (fputs(emsg, stderr) == EOF)
+                    perror("fputs");
+                return 2;
+            }
             break;
         case 'P':
             sourcepid = str2int(optarg);
@@ -255,7 +286,7 @@ main(int const argc, char *const argv[const])
 
     int const ret = fd == -1
         ? do_close(pid, targetfd, fflag, &savedregs)
-        : do_send(pid, fd, &targetfd, sourcepid, &savedregs);
+        : do_send(pid, fd, &targetfd, sourcepid, &savedregs, fdmin);
 
     if (ptrace(PTRACE_POKETEXT, pid, savedregs.rip, word) == -1) {
         perror("ptrace(PTRACE_POKETEXT)");
