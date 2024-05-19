@@ -104,9 +104,10 @@ do_close(pid_t const pid, int const fd, bool const fflag,
         regs.rdi = fd;
         if (!do_syscall(pid, &regs))
             return 2;
-        if (regs.rax == 0 || (fflag && regs.rax == -EBADF))
-            return 0;
     } while (regs.rax == -EINTR);
+
+    if (regs.rax == 0 || (fflag && regs.rax == -EBADF))
+        return 0;
 
     tracee_perror("close", -regs.rax);
     return 2;
