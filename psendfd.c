@@ -165,21 +165,20 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
                 ret = 2;
         }
     } else if (thefd != targetfd) {
-        for (;;) {
+        do {
             regs = *savedregs;
             regs.rax = SYS_dup2;
             regs.rdi = thefd;
             regs.rsi = targetfd;
             if (!do_syscall(pid, &regs))
                 return 2;
-            if (regs.rax >= 0)
-                break;
-            if (regs.rax == -EINTR)
-                continue;
+        } while (regs.rax == -EINTR);
+
+        if ((long)regs.rax < 0) {
             tracee_perror("dup2", -regs.rax);
             ret = 2;
-            break;
         }
+
         if (do_close(pid, thefd, false, savedregs))
             ret = 2;
     }
