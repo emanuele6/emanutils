@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #define _GNU_SOURCE /* O_PATH */
 #include <errno.h>
 #include <limits.h>
@@ -9,7 +10,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: openpathfd [-dL] fd file cmd [args]...\n";

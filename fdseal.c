@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #define _GNU_SOURCE /* F_ADD_SEALS, F_GET_SEALS, F_SEAL_* */
 #include <errno.h>
 #include <limits.h>
@@ -24,7 +25,7 @@ static struct sealinfo {
 };
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: fdseal add [-s SEAL]... FD [CMD]...\n"

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -29,7 +30,7 @@ str2posint(int *const intp, char const str[const],
 }
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: fdcmp [-0123en] [-p PID1] [-P PID2] fd1 fd2 [cmd]...\n";

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -15,7 +16,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const msg[] =
         "Usage: psendfd [-ef] [-m mintargetfd] [-P sourcepid] pid fd "

@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
@@ -8,7 +9,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const msg[] = "Usage: openpidfd fd pid cmd [args]...\n";
     if (fputs(msg, stderr) == EOF)

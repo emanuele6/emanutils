@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #define _GNU_SOURCE /* memfd_create, MFD_ALLOW_SEALING */
 #include <errno.h>
 #include <limits.h>
@@ -8,7 +9,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: creatememfd [-S] fd name cmd [args]...\n";

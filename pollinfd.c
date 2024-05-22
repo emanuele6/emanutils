@@ -1,14 +1,15 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <limits.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: pollinfd [-t timeout] fd [cmd] [args]...\n";

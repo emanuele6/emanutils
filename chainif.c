@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <errno.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -8,8 +9,6 @@
 #include <spawn.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-extern char *const *const environ;
 
 static char **
 getblock(char *args[const])
@@ -27,7 +26,7 @@ getblock(char *args[const])
 }
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: chainif [-AEn] { condition... } { chain... } cmd...\n";
