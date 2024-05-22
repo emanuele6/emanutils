@@ -9,7 +9,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-extern char *const *const environ;
+extern char **environ;
 
 static char **
 getblock(char *args[const])
