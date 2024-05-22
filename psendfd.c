@@ -88,7 +88,7 @@ do_syscall(pid_t const pid, struct user_regs_struct *const regs)
             perror("ptrace(PTRACE_PEEKUSER)");
             return false;
         }
-    } while (regs->rax == -ENOSYS);
+    } while ((long)regs->rax == -ENOSYS);
     return true;
 }
 
@@ -104,9 +104,9 @@ do_close(pid_t const pid, int const fd, bool const fflag,
         regs.rdi = fd;
         if (!do_syscall(pid, &regs))
             return 2;
-    } while (regs.rax == -EINTR);
+    } while ((long)regs.rax == -EINTR);
 
-    if (regs.rax == 0 || (fflag && regs.rax == -EBADF))
+    if (regs.rax == 0 || (fflag && (long)regs.rax == -EBADF))
         return 0;
 
     tracee_perror("close", -regs.rax);
@@ -172,7 +172,7 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
             regs.rsi = targetfd;
             if (!do_syscall(pid, &regs))
                 return 2;
-        } while (regs.rax == -EINTR);
+        } while ((long)regs.rax == -EINTR);
 
         if ((long)regs.rax < 0) {
             tracee_perror("dup2", -regs.rax);
@@ -308,7 +308,7 @@ main(int const argc, char *const argv[const])
             perror("snprintf");
             return 2;
         }
-        if (sz >= sizeof buf) {
+        if ((size_t)sz >= sizeof buf) {
             static char const efmt[] =
                 "snprintf: the buffer is %zd byte%s too small.\n";
             ptrdiff_t const diff = ret - sizeof buf;
