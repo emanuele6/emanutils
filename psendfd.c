@@ -34,9 +34,8 @@ str2int(char const str[const])
         perror("strtol");
         return -2;
     }
-    if (endptr == str || num < INT_MIN || num > INT_MAX || *endptr) {
+    if (endptr == str || num < INT_MIN || num > INT_MAX || *endptr)
         return -2;
-    }
     return (int)num;
 }
 
