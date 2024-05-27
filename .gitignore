@@ -10,4 +10,5 @@ openpidfd
 pidfdgetfd
 pollinfd
 psendfd
+ptytty
 secretmemfd
