@@ -19,6 +19,7 @@
 
 #define SPECIALTARGETS \
     SPECIALTARGET(any) \
+    SPECIALTARGET(cwd) \
 
 enum {
     SPECIALSOURCES_zero,
@@ -214,6 +215,26 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
     return ret;
 }
 
+static int
+do_fchdir(pid_t const pid, int const fd,
+          struct user_regs_struct const *const savedregs)
+{
+    int ret = 0;
+    int targetfd = -SPECIALTARGET_any;
+    if (do_send(pid, fd, &targetfd, -1, savedregs, -1))
+        return 2;
+    struct user_regs_struct regs = *savedregs;
+    regs.rax = SYS_fchdir;
+    regs.rdi = targetfd;
+    if (!do_syscall(pid, &regs)) {
+        tracee_perror("fchdir", -regs.rax);
+        ret = 2;
+    }
+    if (do_close(pid, targetfd, false, savedregs))
+        ret = 2;
+    return ret;
+}
+
 int
 main(int const argc, char *const argv[const])
 {
@@ -318,6 +339,8 @@ main(int const argc, char *const argv[const])
     int const ret =
         fd == -SPECIALSOURCE_close ?
             do_close(pid, targetfd, fflag, &savedregs) :
+        targetfd == -SPECIALTARGET_cwd ?
+            do_fchdir(pid, fd, &savedregs) :
         do_send(pid, fd, &targetfd, sourcepid, &savedregs, fdmin);
 
     if (ptrace(PTRACE_POKETEXT, pid, savedregs.rip, word) == -1) {
