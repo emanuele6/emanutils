@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 static int
-retryeintr_open(char const *const path, int const flags)
+retryeintr_open(char const path[const], int const flags)
 {
     int const fd = open(path, flags);
     if (fd != -1 || errno != EINTR)
@@ -35,7 +35,7 @@ retryeintr_close(int const fd)
 }
 
 static int
-opentofd(int const fd, char const *const path, int const flags)
+opentofd(int const fd, char const path[const], int const flags)
 {
     int thefd = retryeintr_open(path, flags);
     if (thefd == -1) {
