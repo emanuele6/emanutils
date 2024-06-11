@@ -14,6 +14,27 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define SPECIALSOURCES \
+    SPECIALSOURCE(close) \
+
+#define SPECIALTARGETS \
+    SPECIALTARGET(any) \
+
+enum {
+    SPECIALSOURCES_zero,
+#define SPECIALSOURCE(x) SPECIALSOURCE_##x,
+    SPECIALSOURCES
+#undef SPECIALSOURCE
+    SPECIALSOURCES_count,
+};
+enum {
+    SPECIALTARGETS_zero,
+#define SPECIALTARGET(x) SPECIALTARGET_##x,
+    SPECIALTARGETS
+#undef SPECIALTARGET
+    SPECIALTARGETS_count,
+};
+
 static void
 usage()
 {
@@ -32,10 +53,10 @@ str2int(char const str[const])
     long const num = strtol(str, &endptr, 10);
     if (errno) {
         perror("strtol");
-        return -2;
+        return INT_MIN;
     }
     if (endptr == str || num < INT_MIN || num > INT_MAX || *endptr)
-        return -2;
+        return INT_MIN;
     return (int)num;
 }
 
@@ -245,15 +266,25 @@ main(int const argc, char *const argv[const])
     }
     pid_t const pid = (pid_t)intpid;
 
-    int const fd = str2int(argv[optind + 1]);
-    if (fd < -1) {
+    char const *const fdstr = argv[optind + 1];
+    int const fd =
+#define SPECIALSOURCE(x) !strcmp(fdstr, #x) ? -SPECIALSOURCE_##x :
+        SPECIALSOURCES
+#undef SPECIALSOURCE
+        str2int(fdstr);
+    if (fd < -SPECIALSOURCES_count) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
     }
 
-    int targetfd = str2int(argv[optind + 2]);
-    if (targetfd < -1 || (fd < 0 && targetfd == -1)) {
+    char const *const tfdstr = argv[optind + 2];
+    int targetfd =
+#define SPECIALTARGET(x) !strcmp(tfdstr, #x) ? -SPECIALTARGET_##x :
+        SPECIALTARGETS
+#undef SPECIALTARGET
+        str2int(tfdstr);
+    if (targetfd < -SPECIALTARGETS_count || (fd < 0 && targetfd < 0)) {
         if (fputs("Invalid targetfd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
@@ -284,9 +315,10 @@ main(int const argc, char *const argv[const])
         return 2;
     }
 
-    int const ret = fd == -1
-        ? do_close(pid, targetfd, fflag, &savedregs)
-        : do_send(pid, fd, &targetfd, sourcepid, &savedregs, fdmin);
+    int const ret =
+        fd == -SPECIALSOURCE_close ?
+            do_close(pid, targetfd, fflag, &savedregs) :
+        do_send(pid, fd, &targetfd, sourcepid, &savedregs, fdmin);
 
     if (ptrace(PTRACE_POKETEXT, pid, savedregs.rip, word) == -1) {
         perror("ptrace(PTRACE_POKETEXT)");
