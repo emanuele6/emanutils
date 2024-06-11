@@ -223,13 +223,20 @@ do_fchdir(pid_t const pid, int const fd,
     int targetfd = -SPECIALTARGET_any;
     if (do_send(pid, fd, &targetfd, -1, savedregs, -1))
         return 2;
+
     struct user_regs_struct regs = *savedregs;
-    regs.rax = SYS_fchdir;
-    regs.rdi = targetfd;
+    do {
+        regs = *savedregs;
+        regs.rax = SYS_fchdir;
+        regs.rdi = targetfd;
+        if (!do_syscall(pid, &regs))
+            return 2;
+    } while ((long)regs.rax == -EINTR);
     if (!do_syscall(pid, &regs)) {
         tracee_perror("fchdir", -regs.rax);
         ret = 2;
     }
+
     if (do_close(pid, targetfd, false, savedregs))
         ret = 2;
     return ret;
