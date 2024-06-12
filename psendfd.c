@@ -26,14 +26,14 @@ enum {
 #define SPECIALSOURCE(x) SPECIALSOURCE_##x,
     SPECIALSOURCES
 #undef SPECIALSOURCE
-    SPECIALSOURCES_count,
+    SPECIALSOURCES_end,
 };
 enum {
     SPECIALTARGETS_zero,
 #define SPECIALTARGET(x) SPECIALTARGET_##x,
     SPECIALTARGETS
 #undef SPECIALTARGET
-    SPECIALTARGETS_count,
+    SPECIALTARGETS_end,
 };
 
 static void
@@ -300,7 +300,7 @@ main(int const argc, char *const argv[const])
         SPECIALSOURCES
 #undef SPECIALSOURCE
         str2int(fdstr);
-    if (fd < -SPECIALSOURCES_count) {
+    if (fd <= -SPECIALSOURCES_end) {
         if (fputs("Invalid fd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
@@ -312,7 +312,7 @@ main(int const argc, char *const argv[const])
         SPECIALTARGETS
 #undef SPECIALTARGET
         str2int(tfdstr);
-    if (targetfd < -SPECIALTARGETS_count || (fd < 0 && targetfd < 0)) {
+    if (targetfd <= -SPECIALTARGETS_end || (fd < 0 && targetfd < 0)) {
         if (fputs("Invalid targetfd.\n", stderr) == EOF)
             perror("fputs");
         return 2;
