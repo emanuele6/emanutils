@@ -232,7 +232,7 @@ do_fchdir(pid_t const pid, int const fd,
         if (!do_syscall(pid, &regs))
             return 2;
     } while ((long)regs.rax == -EINTR);
-    if (!do_syscall(pid, &regs)) {
+    if ((long)regs.rax < 0) {
         tracee_perror("fchdir", -regs.rax);
         ret = 2;
     }
