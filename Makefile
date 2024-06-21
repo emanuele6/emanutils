@@ -4,6 +4,7 @@ UTILS = \
     fdcmp \
     fdseal \
     fdtruncate \
+    mergeeet \
     openpathfd \
     openpidfd \
     pidfdgetfd \
