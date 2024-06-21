@@ -1,4 +1,4 @@
-#define _GNU_SOURCE     /* grantpt, ptsname, unlockpt */
+#define _GNU_SOURCE /* grantpt, ptsname, unlockpt */
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
