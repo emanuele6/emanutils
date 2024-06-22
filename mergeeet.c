@@ -75,7 +75,8 @@ fullwrite(int const fd, char const *buf, size_t size)
 }
 
 static bool
-buffer_append(struct buffer *const b, char *buf, size_t size)
+buffer_append(struct buffer *const b, char const *const buf,
+              size_t const size)
 {
     if (!b->buffer) {
         b->size = ((size - 1) | (4096 - 1)) + 1;
@@ -89,7 +90,7 @@ buffer_append(struct buffer *const b, char *buf, size_t size)
         return true;
     }
     if (b->size - b->length < size) {
-        size_t newsz = ((b->length + size - 1) | (4096 - 1)) + 1;
+        size_t const newsz = ((b->length + size - 1) | (4096 - 1)) + 1;
         char *const newbuf = realloc(b->buffer, newsz);
         if (!newbuf) {
             perror("realloc");
