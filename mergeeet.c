@@ -237,15 +237,7 @@ main(int const argc, char *const argv[const])
                         "retryeintr_read: fd `%d': %s\n";
                     if (fprintf(stderr, ef, fd, strerror(errno)) == EOF)
                         perror("fprintf");
-ioerror:
-                    exitstatus = 2;
-                    if (buffers) {
-                        buffer_clear(&buffers[i]);
-                        buffers[i].fd = -1;
-                    }
-                    fds[i].fd = -1;
-                    if (!--newnfds)
-                        goto done;
+                    goto ioerror;
                 }
                 if (!buffers) {
                     if (!fullwrite(STDOUT_FILENO, buf, nread)) {
@@ -296,7 +288,15 @@ pollhup:
                     : "mergeet: fd `%d': not pollable.\n";
                 if (fprintf(stderr, efmt, fds[i].fd) == EOF)
                     perror("fprintf");
-                goto ioerror;
+ioerror:
+                exitstatus = 2;
+                if (buffers) {
+                    buffer_clear(&buffers[i]);
+                    buffers[i].fd = -1;
+                }
+                fds[i].fd = -1;
+                if (!--newnfds)
+                    goto done;
             }
         }
         if (newnfds < nfds) {
