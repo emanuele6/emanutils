@@ -211,7 +211,7 @@ main(int const argc, char *const argv[const])
         }
     }
 
-    nfds_t thefds = nfds;
+    nfds_t newnfds = nfds;
     for (;;) {
         int ret = poll(fds, nfds, -1);
         if (ret < 0) {
@@ -242,7 +242,7 @@ ioerror:
                     if (buffers)
                         buffer_clear(&buffers[i]);
                     fds[i].fd = -1;
-                    if (!--thefds)
+                    if (!--newnfds)
                         goto done;
                 }
                 if (!buffers) {
@@ -285,7 +285,7 @@ pollhup:
                     exitstatus = 2;
                 }
                 fds[i].fd = -1;
-                if (!--thefds)
+                if (!--newnfds)
                     goto done;
             } else if (fds[i].revents & (POLLNVAL | POLLERR)) {
                 char const *const efmt = (fds[i].revents & POLLERR)
@@ -296,17 +296,18 @@ pollhup:
                 goto ioerror;
             }
         }
-        if (thefds < nfds) {
+        if (newnfds < nfds) {
             qsort(fds, nfds, sizeof *fds, comparpollfd);
-            void *ptr = reallocarray(fds, nfds = thefds, sizeof *fds);
+            void *ptr = reallocarray(fds, newnfds, sizeof *fds);
             if (ptr)
                 fds = ptr;
             if (buffers) {
                 qsort(buffers, nfds, sizeof *buffers, comparbuffer);
-                ptr = reallocarray(buffers, thefds, sizeof *buffers);
+                ptr = reallocarray(buffers, newnfds, sizeof *buffers);
                 if (ptr)
                     buffers = ptr;
             }
+            nfds = newnfds;
         }
     }
 
