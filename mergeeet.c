@@ -211,8 +211,7 @@ main(int const argc, char *const argv[const])
         }
     }
 
-    nfds_t newnfds = nfds;
-    for (;;) {
+    for (nfds_t newnfds = nfds;;) {
         int ret = poll(fds, nfds, -1);
         if (ret < 0) {
             if (errno == EINTR || errno == EAGAIN)
