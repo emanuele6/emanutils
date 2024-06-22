@@ -239,8 +239,10 @@ main(int const argc, char *const argv[const])
                         perror("fprintf");
 ioerror:
                     exitstatus = 2;
-                    if (buffers)
+                    if (buffers) {
                         buffer_clear(&buffers[i]);
+                        buffers[i].fd = -1;
+                    }
                     fds[i].fd = -1;
                     if (!--newnfds)
                         goto done;
@@ -279,6 +281,7 @@ pollhup:
                         exitstatus = 2;
                         goto done;
                     }
+                    buffers[i].fd = -1;
                 }
                 if (retryeintr_close(fds[i].fd)) {
                     perror("retryeintr_close");
