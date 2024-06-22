@@ -13,7 +13,6 @@ struct buffer {
     char *buffer;
     size_t size;
     size_t length;
-    int fd;
 };
 
 static void
@@ -121,19 +120,11 @@ buffer_flush(int fd, struct buffer *const b)
 }
 
 static int
-comparbuffer(void const *const a, void const *const b)
-{
-    int const ba = ((struct buffer const *)a)->fd;
-    int const bb = ((struct buffer const *)b)->fd;
-    return (ba < bb) - (ba > bb);
-}
-
-static int
 comparpollfd(void const *const a, void const *const b)
 {
     int const fda = ((struct pollfd const *)a)->fd;
     int const fdb = ((struct pollfd const *)b)->fd;
-    return (fda < fdb) - (fda > fdb);
+    return (fda > fdb) - (fda < fdb);
 }
 
 int
@@ -196,12 +187,8 @@ main(int const argc, char *const argv[const])
         }
         fds[i].events = POLLIN;
         fds[i].fd = fd;
-        if (buffers)
-            buffers[i].fd = fd;
     }
     qsort(fds, nfds, sizeof *fds, comparpollfd);
-    if (buffers)
-        qsort(buffers, nfds, sizeof *buffers, comparbuffer);
     for (nfds_t i = 1; i < nfds; ++i) {
         if (fds[i].fd == fds[i - 1].fd) {
             static char const efmt[] = "Duplicate `%d' not allowed.\n";
@@ -212,7 +199,7 @@ main(int const argc, char *const argv[const])
         }
     }
 
-    for (nfds_t newnfds = nfds;;) {
+    for (nfds_t readablefds = nfds;;) {
         int ret = poll(fds, nfds, -1);
         if (ret < 0) {
             if (errno == EINTR || errno == EAGAIN)
@@ -273,14 +260,13 @@ pollhup:
                         exitstatus = 2;
                         goto done;
                     }
-                    buffers[i].fd = -1;
                 }
                 if (retryeintr_close(fds[i].fd)) {
                     perror("retryeintr_close");
                     exitstatus = 2;
                 }
                 fds[i].fd = -1;
-                if (!--newnfds)
+                if (!--readablefds)
                     goto done;
             } else if (fds[i].revents & (POLLNVAL | POLLERR)) {
                 char const *const efmt = (fds[i].revents & POLLERR)
@@ -290,27 +276,12 @@ pollhup:
                     perror("fprintf");
 ioerror:
                 exitstatus = 2;
-                if (buffers) {
+                if (buffers)
                     buffer_clear(&buffers[i]);
-                    buffers[i].fd = -1;
-                }
                 fds[i].fd = -1;
-                if (!--newnfds)
+                if (!--readablefds)
                     goto done;
             }
-        }
-        if (newnfds < nfds) {
-            qsort(fds, nfds, sizeof *fds, comparpollfd);
-            void *ptr = reallocarray(fds, newnfds, sizeof *fds);
-            if (ptr)
-                fds = ptr;
-            if (buffers) {
-                qsort(buffers, nfds, sizeof *buffers, comparbuffer);
-                ptr = reallocarray(buffers, newnfds, sizeof *buffers);
-                if (ptr)
-                    buffers = ptr;
-            }
-            nfds = newnfds;
         }
     }
 
