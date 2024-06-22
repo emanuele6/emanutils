@@ -78,7 +78,7 @@ static bool
 buffer_append(struct buffer *const b, char *buf, size_t size)
 {
     if (!b->buffer) {
-        b->size = (size | (4096 - 1)) + 1;
+        b->size = ((size - 1) | (4096 - 1)) + 1;
         b->buffer = malloc(b->size);
         if (!b->buffer) {
             perror("malloc");
@@ -89,8 +89,8 @@ buffer_append(struct buffer *const b, char *buf, size_t size)
         return true;
     }
     if (b->size - b->length < size) {
-        size_t newsz = ((b->length + size) | (4096 - 1)) + 1;
-        char *const newbuf = realloc(b, newsz);
+        size_t newsz = ((b->length + size - 1) | (4096 - 1)) + 1;
+        char *const newbuf = realloc(b->buffer, newsz);
         if (!newbuf) {
             perror("realloc");
             return false;
