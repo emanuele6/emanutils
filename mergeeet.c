@@ -18,7 +18,9 @@ struct buffer {
 static void
 usage()
 {
-    if (fputs("Usage: mergeeet [-0B] fd fds...\n", stderr) == EOF)
+    static char const message[] =
+        "Usage: mergeeet [-0|-d delimiter|-L] fds...\n";
+    if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
 
@@ -156,7 +158,7 @@ main(int const argc, char *const argv[const])
         }
     }
 
-    if (argc <= optind + 1) {
+    if (argc - optind < 1) {
         usage();
         return 2;
     }
