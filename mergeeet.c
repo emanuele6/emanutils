@@ -245,8 +245,8 @@ main(int const argc, char *const argv[const])
                         }
                         if (len == nread)
                             continue;
-                        buf = del;
-                        nread = len;
+                        buf = &del[1];
+                        nread -= len;
                     }
                     if (!buffer_append(&buffers[i], buf, nread)) {
                         exitstatus = 2;
