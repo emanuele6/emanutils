@@ -78,7 +78,7 @@ str2fd(char const str[const])
 }
 
 static void
-usage()
+usage(void)
 {
     static char const msg[] =
         "Usage: ptytty [-N] ptyfd ttyfd cmd [args...]\n";

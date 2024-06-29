@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const um[] = "Usage: fdtruncate fd [length] [cmd]...\n";
     if (fputs(um, stderr) == EOF)

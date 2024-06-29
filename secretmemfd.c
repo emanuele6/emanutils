@@ -7,7 +7,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const msg[] = "Usage: secretmemfd fd cmd [args]...\n";
     if (fputs(msg, stderr) == EOF)

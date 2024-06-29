@@ -37,7 +37,7 @@ enum {
 };
 
 static void
-usage()
+usage(void)
 {
     static char const msg[] =
         "Usage: psendfd [-ef] [-m mintargetfd] [-P sourcepid] pid fd "

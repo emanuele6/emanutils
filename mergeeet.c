@@ -16,7 +16,7 @@ struct buffer {
 };
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: mergeeet [-D] [-0|-d delimiter|-L] fds...\n";

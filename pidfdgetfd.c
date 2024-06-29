@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: pidfdgetfd pidfd targetfd fd cmd [args]...\n";

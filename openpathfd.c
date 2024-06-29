@@ -9,7 +9,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: openpathfd [-dL] fd file cmd [args]...\n";

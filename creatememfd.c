@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: creatememfd [-S] fd name cmd [args]...\n";

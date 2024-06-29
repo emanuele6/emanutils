@@ -27,7 +27,7 @@ getblock(char *args[const])
 }
 
 static void
-usage()
+usage(void)
 {
     static char const message[] =
         "Usage: chainif [-AEn] { condition... } { chain... } cmd...\n";
