@@ -247,7 +247,7 @@ main(int const argc, char *const argv[const])
                             exitstatus = 2;
                             goto done;
                         }
-                        if (len == nread)
+                        if (len == (size_t)nread)
                             continue;
                         buf = &del[1];
                         nread -= len;
