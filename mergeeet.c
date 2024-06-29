@@ -19,7 +19,7 @@ static void
 usage()
 {
     static char const message[] =
-        "Usage: mergeeet [-0|-d delimiter|-L] fds...\n";
+        "Usage: mergeeet [-D] [-0|-d delimiter|-L] fds...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -134,7 +134,8 @@ main(int const argc, char *const argv[const])
 {
     struct buffer *buffers = NULL;
     char delimiter = '\n';
-    for (int opt; opt = getopt(argc, argv, "+0d:L"), opt != -1;) {
+    bool discardpartial = false;
+    for (int opt; opt = getopt(argc, argv, "+0d:DL"), opt != -1;) {
         switch (opt) {
         case '0':
             buffers = (void *)1;
@@ -149,6 +150,9 @@ main(int const argc, char *const argv[const])
             if (fputs("Invalid delimiter.\n", stderr) == EOF)
                 perror("fputs");
             return 2;
+        case 'D':
+            discardpartial = true;
+            break;
         case 'L':
             buffers = (void *)1;
             delimiter = '\n';
@@ -257,10 +261,14 @@ main(int const argc, char *const argv[const])
             } else if (fds[i].revents & POLLHUP) {
 pollhup:
                 if (buffers && buffers[i].buffer) {
-                    if (!buffer_flush(STDOUT_FILENO, &buffers[i]) ||
-                        !fullwrite(STDOUT_FILENO, &delimiter, 1)) {
-                        exitstatus = 2;
-                        goto done;
+                    if (discardpartial) {
+                        buffer_clear(&buffers[i]);
+                    } else {
+                        if (!buffer_flush(STDOUT_FILENO, &buffers[i]) ||
+                            !fullwrite(STDOUT_FILENO, &delimiter, 1)) {
+                            exitstatus = 2;
+                            goto done;
+                        }
                     }
                 }
                 if (retryeintr_close(fds[i].fd)) {
