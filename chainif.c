@@ -12,7 +12,7 @@
 extern char **environ;
 
 static char **
-getblock(char *args[const])
+getblock(char **const args)
 {
     if (!*args)
         return NULL;
@@ -36,7 +36,7 @@ usage(void)
 }
 
 int
-main(int const argc, char *argv[const])
+main(int const argc, char **const argv)
 {
     bool appendflag = false;
     bool envflag = false;

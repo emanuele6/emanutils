@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 static int
-retryeintr_open(char const path[const], int const flags)
+retryeintr_open(char const *const path, int const flags)
 {
     int const fd = open(path, flags);
     if (fd != -1 || errno != EINTR)
@@ -35,7 +35,7 @@ retryeintr_close(int const fd)
 }
 
 static int
-opentofd(int const fd, char const path[const], int const flags)
+opentofd(int const fd, char const *const path, int const flags)
 {
     int thefd = retryeintr_open(path, flags);
     if (thefd == -1) {
@@ -60,7 +60,7 @@ opentofd(int const fd, char const path[const], int const flags)
 }
 
 static int
-str2fd(char const str[const])
+str2fd(char const *const str)
 {
     char *endptr;
     errno = 0;
@@ -87,7 +87,7 @@ usage(void)
 }
 
 int
-main(int const argc, char *const argv[const])
+main(int const argc, char *const *const argv)
 {
     int ptflags = O_RDWR;
     for (int opt; opt = getopt(argc, argv, "+N"), opt != -1;) {

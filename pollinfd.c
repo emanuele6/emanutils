@@ -17,8 +17,8 @@ usage(void)
 }
 
 static bool
-str2num(char const str[const], int const min, int const max,
-        int *const out, char const err[const])
+str2num(char const *const str, int const min, int const max,
+        int *const out, char const *const err)
 {
     char *endptr;
     errno = 0;
@@ -37,7 +37,7 @@ str2num(char const str[const], int const min, int const max,
 }
 
 int
-main(int const argc, char *argv[const])
+main(int const argc, char **const argv)
 {
     int timeout = -1;
 

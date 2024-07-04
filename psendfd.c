@@ -47,7 +47,7 @@ usage(void)
 }
 
 static int
-str2int(char const str[const])
+str2int(char const *const str)
 {
     char *endptr;
     errno = 0;
@@ -62,7 +62,7 @@ str2int(char const str[const])
 }
 
 static void
-tracee_perror(char const msg[const], int const err)
+tracee_perror(char const *const msg, int const err)
 {
     if (fprintf(stderr, "tracee: %s: %s\n", msg, strerror(err)) == EOF)
         perror("fprintf");
@@ -243,7 +243,7 @@ do_fchdir(pid_t const pid, int const fd,
 }
 
 int
-main(int const argc, char *const argv[const])
+main(int const argc, char *const *const argv)
 {
     pid_t sourcepid = -1;
     bool eflag = false;

@@ -18,7 +18,7 @@ usage(void)
 }
 
 int
-main(int const argc, char *const argv[])
+main(int const argc, char *const *const argv)
 {
     int openflags = O_PATH | O_NOFOLLOW;
     for (int opt; opt = getopt(argc, argv, "+dL"), opt != -1;) {

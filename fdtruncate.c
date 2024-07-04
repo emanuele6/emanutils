@@ -15,7 +15,7 @@ usage(void)
 }
 
 int
-main(int const argc, char *const argv[])
+main(int const argc, char *const *const argv)
 {
     for (int opt; opt = getopt(argc, argv, "+"), opt != -1;) {
         switch (opt) {

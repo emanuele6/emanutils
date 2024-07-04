@@ -25,7 +25,7 @@ usage(void)
 }
 
 static int
-str2int(char const str[const])
+str2int(char const *const str)
 {
     char *endptr;
     errno = 0;
@@ -130,7 +130,7 @@ comparpollfd(void const *const a, void const *const b)
 }
 
 int
-main(int const argc, char *const argv[const])
+main(int const argc, char *const *const argv)
 {
     struct buffer *buffers = NULL;
     char delimiter = '\n';
