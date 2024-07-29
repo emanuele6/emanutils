@@ -23,5 +23,6 @@ clean:
 .PHONY: clean
 
 install:
+	install -d -- $(DESTDIR)$(PREFIX)/bin
 	install -p -- $(UTILS) $(DESTDIR)$(PREFIX)/bin
 .PHONY: install
