@@ -1,3 +1,5 @@
+PREFIX = /usr/local
+
 UTILS = \
     chainif \
     creatememfd \
@@ -19,3 +21,7 @@ all: $(UTILS)
 clean:
 	rm -f -- $(UTILS)
 .PHONY: clean
+
+install:
+	install -p -- $(UTILS) $(DESTDIR)$(PREFIX)/bin
+.PHONY: install
