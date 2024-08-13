@@ -224,7 +224,7 @@ do_fchdir(pid_t const pid, int const fd,
     if (do_send(pid, fd, &targetfd, -1, savedregs, -1))
         return 2;
 
-    struct user_regs_struct regs = *savedregs;
+    struct user_regs_struct regs;
     do {
         regs = *savedregs;
         regs.rax = SYS_fchdir;
