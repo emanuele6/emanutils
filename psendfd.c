@@ -362,7 +362,7 @@ main(int const argc, char *const *const argv)
     if (ret || argc - 3 <= optind)
         return ret;
 
-    if (fd > 0 && eflag) {
+    if (eflag && fd >= 0 && targetfd != -SPECIALTARGET_cwd) {
         char buf[10 + 1];
         int const sz = snprintf(buf, sizeof buf, "%d", targetfd);
         if (sz < 0) {
