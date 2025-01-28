@@ -37,7 +37,7 @@ retryeintr_close(int const fd)
 static int
 opentofd(int const fd, char const *const path, int const flags)
 {
-    int thefd = retryeintr_open(path, flags);
+    int const thefd = retryeintr_open(path, flags);
     if (thefd == -1) {
         perror("open");
         return -1;
