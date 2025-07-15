@@ -160,13 +160,12 @@ do_send(pid_t const pid, int const fd, int *const targetfdp,
     regs.rdx = 0;
     if (!do_syscall(pid, &regs))
         return 2;
-    if ((long)regs.rax < 0) {
-        tracee_perror("pidfd_getfd", -regs.rax);
-        return 2;
-    }
-    int thefd = regs.rax;
 
-    if (targetfd < 0) {
+    int thefd = regs.rax;
+    if (thefd < 0) {
+        ret = 2;
+        tracee_perror("pidfd_getfd", -thefd);
+    } else if (targetfd < 0) {
         if (fdmin > thefd) {
             int const theoldfd = thefd;
             regs = *savedregs;
