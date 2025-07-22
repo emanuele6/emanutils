@@ -19,6 +19,7 @@ static struct sealinfo {
     SEAL(GROW),
     SEAL(WRITE),
     SEAL(FUTURE_WRITE),
+    SEAL(EXEC),
 #undef SEAL
     { 0 },
 };
