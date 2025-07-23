@@ -11,7 +11,7 @@ static void
 usage(void)
 {
     static char const message[] =
-        "Usage: creatememfd [-S] fd name cmd [args]...\n";
+        "Usage: creatememfd [-NS] fd name cmd [args]...\n";
     if (fputs(message, stderr) == EOF)
         perror("fputs");
 }
@@ -19,12 +19,16 @@ usage(void)
 int
 main(int const argc, char **const argv)
 {
-    unsigned memfdflags = 0;
+    unsigned memfdflags = MFD_EXEC;
 
-    for (int opt; opt = getopt(argc, argv, "+S"), opt != -1;) {
+    for (int opt; opt = getopt(argc, argv, "+NS"), opt != -1;) {
         switch (opt) {
         case 'S':
             memfdflags |= MFD_ALLOW_SEALING;
+            break;
+        case 'N':
+            memfdflags &= ~MFD_EXEC;
+            memfdflags |= MFD_NOEXEC_SEAL;
             break;
         default:
             usage();
