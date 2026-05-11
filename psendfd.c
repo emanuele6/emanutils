@@ -330,11 +330,14 @@ main(int const argc, char *const *const argv)
         perror("ptrace(PTRACE_GETREGS)");
         return 2;
     }
+
+    errno = 0;
     long const word = ptrace(PTRACE_PEEKTEXT, pid, savedregs.rip, 0);
-    if (word == -1) {
+    if (errno) {
         perror("ptrace(PTRACE_PEEKTEXT)");
         return 2;
     }
+
     long const pokeret = ptrace(PTRACE_POKETEXT, pid, savedregs.rip,
                                 /* syscall */ 0x050f);
     if (pokeret == -1) {
