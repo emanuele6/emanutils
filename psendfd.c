@@ -322,7 +322,7 @@ main(int const argc, char *const *const argv)
         return 2;
     }
 
-    for (int status; !nextstop(pid, &status);)
+    if (!nextstop(pid, &(int){ 0 }))
         return 2;
 
     struct user_regs_struct savedregs;
